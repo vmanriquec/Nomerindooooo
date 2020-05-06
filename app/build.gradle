@@ -36,6 +36,9 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'com.google.firebase:firebase-database:19.3.0'
+    implementation 'com.crowdfire.cfalertdialog:cfalertdialog:1.1.0'
+    implementation 'jp.wasabeef:picasso-transformations:2.2.1'
+    implementation 'com.squareup.picasso:picasso:2.71828'
 
 }
 apply plugin: 'realm-android'

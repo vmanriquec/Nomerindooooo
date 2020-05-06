@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import com.coronacovid.nomerindooooo.modelos.Almacen;
 import com.coronacovid.nomerindooooo.modelos.Familia;
+import com.crowdfire.cfalertdialog.CFAlertDialog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,7 +50,7 @@ import java.util.Date;
 
 public class Subirproductos extends AppCompatActivity {
     private static final String TAG = "";
-    Button eleccion;
+    Button eleccion,adicionales;
     private static final int PICK_IMAGE = 100;
     Uri imageUri;
     ImageView foto_gallery;
@@ -79,6 +80,7 @@ precioproducto=(TextView)findViewById(R.id.precio);
 almacen =(Spinner) findViewById(R.id.spinnerio);
         familia =(Spinner) findViewById(R.id.spinnerio2);
         eleccion=(Button)findViewById(R.id.camara);
+        adicionales=(Button)findViewById(R.id.adicionales);
 
         new cargaralmacen().execute();
 
@@ -130,6 +132,7 @@ almacen =(Spinner) findViewById(R.id.spinnerio);
 
 
                         })
+
                         .setNegativeButton("Galeria de Fotos", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
 
@@ -142,6 +145,27 @@ almacen =(Spinner) findViewById(R.id.spinnerio);
 
             }
         });
+
+
+
+
+        adicionales.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CFAlertDialog.Builder builder = new CFAlertDialog.Builder(Subirproductos.this);
+                builder.setDialogStyle(CFAlertDialog.CFAlertStyle.ALERT);
+                builder.setTitle("Select notification tone!");
+                builder.setItems(new String[]{"None", "Alert", "Delight", "Guitar", "Marbles", "Prompt"}, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int index) {
+                        Toast.makeText(Subirproductos.this, "Selected:"+index, Toast.LENGTH_SHORT).show();
+                        dialogInterface.dismiss();
+                    }
+                });
+                builder.show();
+            }
+        });
+
 
     }
     private void openGallery(){

@@ -2,13 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.coronacovid.nomerindooooo">
 
-    <uses-feature android:name="android.hardware.camera" android:required="true" />
-      <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_INTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
-
 
     <uses-feature
         android:name="android.hardware.camera.any"
@@ -24,17 +26,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light">
-
-        <activity android:name=".Subirproductos">
+        <activity android:name=".Listaproductos"></activity>
+        <activity android:name=".Subirproductos"></activity>
+        <activity android:name=".Mostrarpedidos" />
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity android:name=".Mostrarpedidos"></activity>
-        <activity android:name=".MainActivity">
-
         </activity>
     </application>
 
