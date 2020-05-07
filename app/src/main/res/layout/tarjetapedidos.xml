@@ -173,7 +173,7 @@
 
                 <TextView
                     android:id="@+id/textView18"
-                    android:layout_width="246dp"
+                    android:layout_width="217dp"
                     android:layout_height="match_parent"
                     android:background="@color/colorprincipalamarillo"
                     android:text="Total a apagar" />

@@ -1,5 +1,6 @@
 package com.coronacovid.nomerindooooo;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -30,12 +31,18 @@ import android.widget.Toast;
 import com.coronacovid.nomerindooooo.modelos.Almacen;
 import com.coronacovid.nomerindooooo.modelos.Familia;
 import com.crowdfire.cfalertdialog.CFAlertDialog;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -50,7 +57,7 @@ import java.util.Date;
 
 public class Subirproductos extends AppCompatActivity {
     private static final String TAG = "";
-    Button eleccion,adicionales;
+    Button eleccion,adicionales,guardarproducto;
     private static final int PICK_IMAGE = 100;
     Uri imageUri;
     ImageView foto_gallery;
@@ -81,10 +88,49 @@ almacen =(Spinner) findViewById(R.id.spinnerio);
         familia =(Spinner) findViewById(R.id.spinnerio2);
         eleccion=(Button)findViewById(R.id.camara);
         adicionales=(Button)findViewById(R.id.adicionales);
-
+guardarproducto=(Button)findViewById(R.id.guardarproducto);
         new cargaralmacen().execute();
 
         new cargarfamilias().execute();
+
+
+guardarproducto.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onClick(View v) {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+
+
+
+        // Creamos una referencia a la carpeta y el nombre de la imagen donde se guardara
+
+        StorageReference mountainImagesRef = storageRef.child("camara/"+timeStamp+".jpg");
+//Pasamos la imagen a un array de byte
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] datas = baos.toByteArray();
+
+// Empezamos con la subida a Firebase
+        UploadTask uploadTask = mountainImagesRef.putBytes(datas);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                Toast.makeText(getBaseContext(),"Hubo un error",Toast.LENGTH_LONG);
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Toast.makeText(getBaseContext(),"Subida con exito",Toast.LENGTH_LONG);
+
+            }
+        });
+
+
+
+
+
+    }
+});
+
         eleccion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -94,11 +140,6 @@ almacen =(Spinner) findViewById(R.id.spinnerio);
                 builder.setMessage("Elija una Opcion")
                         .setCancelable(false)
                         .setPositiveButton("Tomar foto", new DialogInterface.OnClickListener() {
-
-
-
-
-
                             public void onClick(DialogInterface dialog, int id) {
                                 if (ContextCompat.checkSelfPermission(Subirproductos.this,
                                         Manifest.permission.WRITE_EXTERNAL_STORAGE)

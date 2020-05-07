@@ -1,6 +1,7 @@
 package com.coronacovid.nomerindooooo.adaptadores;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 
@@ -17,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.coronacovid.nomerindooooo.Subirproductos;
 import com.coronacovid.nomerindooooo.modelos.Detallepedido;
 import com.coronacovid.nomerindooooo.modelos.Productos;
 import com.coronacovid.nomerindooooo.R;
@@ -58,7 +60,7 @@ public class Adaptadormaestraproducto extends RecyclerView.Adapter<Adaptadormaes
         protected ImageView productoimagen;
         protected TextView inventario;
     protected  ImageView getProductoimagen;
-        protected Button editar,eliminar,nuevo;
+        protected Button editar,eliminar;
         ;
 
         public AdaptadorViewHolder(View v){
@@ -69,6 +71,7 @@ public class Adaptadormaestraproducto extends RecyclerView.Adapter<Adaptadormaes
             this.inventario=(TextView) v.findViewById(R.id.inventarioproducto);
             this.productoingredientes=(TextView) v.findViewById(R.id.ingredientesproductos);
             this.productoimagen=(ImageView) v.findViewById(R.id.imagenproductos);
+
 
 
         }
@@ -87,7 +90,19 @@ public class Adaptadormaestraproducto extends RecyclerView.Adapter<Adaptadormaes
         viewHolder.productoingredientes.setText(item.getIngredientes());
         viewHolder.productoprecio.setText("S/. "+ String.valueOf(item.getPrecventa()));
         viewHolder.idproducto.setText(String.valueOf(item.getIdproducto()));
-        viewHolder.stockp.setText("Stock: "+ String.valueOf(item.getEstadoproducto()));
+
+
+
+
+        if (item.getEstadoproducto().equals("")){
+
+            viewHolder.inventario.setText("0");
+
+        }else{
+
+            viewHolder.inventario.setText(String.valueOf(item.getEstadoproducto()));
+        }
+
 
         //viewHolder.michek.setVisibility(View.GONE);
         //viewHolder.cantidadpedida.setVisibility(View.GONE);
