@@ -40,6 +40,7 @@ public class Listaproductos extends AppCompatActivity {
     private RecyclerView.LayoutManager lManager;
     public static final int CONNECTION_TIMEOUT = 10000;
     public static final int READ_TIMEOUT = 15000;
+
 Button todos,nuevo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
