@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,8 +18,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.coronacovid.nomerindooooo.Listaproductos;
 import com.coronacovid.nomerindooooo.Subirproductos;
 import com.coronacovid.nomerindooooo.modelos.Detallepedido;
 import com.coronacovid.nomerindooooo.modelos.Productos;
@@ -26,6 +30,20 @@ import com.coronacovid.nomerindooooo.modelos.Detallepedido;
 import com.coronacovid.nomerindooooo.modelos.Productos;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +54,9 @@ import jp.wasabeef.picasso.transformations.CropSquareTransformation;
 
 public class Adaptadormaestraproducto extends RecyclerView.Adapter<Adaptadormaestraproducto.AdaptadorViewHolder> {
     private Context mainContext;
+    public static final int CONNECTION_TIMEOUT = 10000;
+    public static final int READ_TIMEOUT = 15000;
+
     String foto;
     SharedPreferences prefs;
     String FileName ="myfile";
@@ -71,7 +92,7 @@ public class Adaptadormaestraproducto extends RecyclerView.Adapter<Adaptadormaes
             this.inventario=(TextView) v.findViewById(R.id.inventarioproducto);
             this.productoingredientes=(TextView) v.findViewById(R.id.ingredientesproductos);
             this.productoimagen=(ImageView) v.findViewById(R.id.imagenproductos);
-
+this.eliminar=(Button)v.findViewById(R.id.eliminar);
 
 
         }
@@ -90,11 +111,7 @@ public class Adaptadormaestraproducto extends RecyclerView.Adapter<Adaptadormaes
         viewHolder.productoingredientes.setText(item.getIngredientes());
         viewHolder.productoprecio.setText("S/. "+ String.valueOf(item.getPrecventa()));
         viewHolder.idproducto.setText(String.valueOf(item.getIdproducto()));
-
-
-
-
-        if (item.getEstadoproducto().equals("")){
+if (item.getEstadoproducto().equals("")){
 
             viewHolder.inventario.setText("0");
 
@@ -158,7 +175,13 @@ public class Adaptadormaestraproducto extends RecyclerView.Adapter<Adaptadormaes
         //String idalmacenactiv = prefs.getString("idalmacenactivosf", "1");
         //int i= Integer.parseInt(idalmacenactiv);
 
-
+viewHolder.eliminar.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onClick(View v) {
+String oo=String.valueOf(item.getIdproducto());
+        new eliminarproducto().execute(oo);
+    }
+});
 
 
     }
@@ -166,5 +189,105 @@ public class Adaptadormaestraproducto extends RecyclerView.Adapter<Adaptadormaes
     public int getItemCount() {
         return items.size();
     }
-}
+    private class eliminarproducto extends AsyncTask<String, String, String> {
+        ArrayList<Productos> people=new ArrayList<>();
+        private String[] strArrData = {"No Suggestions"};
+
+        HttpURLConnection conne;
+        URL url = null;
+        ArrayList<Productos> listaalmaceno = new ArrayList<Productos>();
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            try {
+                url = new URL("https://sodapop.pe/sugest/apieliminarproducto.php");
+            } catch (MalformedURLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                return e.toString();
+            }
+            try {
+                conne = (HttpURLConnection) url.openConnection();
+                conne.setReadTimeout(READ_TIMEOUT);
+                conne.setConnectTimeout(CONNECTION_TIMEOUT);
+                conne.setRequestMethod("POST");
+                conne.setDoInput(true);
+                conne.setDoOutput(true);
+
+                // Append parameters to URL
+
+
+
+                Uri.Builder builder = new Uri.Builder()
+
+                        .appendQueryParameter("idproducto", params[0])
+                        ;
+
+                String query = builder.build().getEncodedQuery();
+
+                // Open connection for sending data
+                OutputStream os = conne.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(
+                        new OutputStreamWriter(os, "UTF-8"));
+                writer.write(query);
+                writer.flush();
+                writer.close();
+                os.close();
+                conne.connect();
+
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+                return e1.toString();
+            }
+            try {
+                int response_code = conne.getResponseCode();
+                if (response_code == HttpURLConnection.HTTP_OK) {
+                    InputStream input = conne.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                    StringBuilder result = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        result.append(line);
+
+                    }
+                    return (
+
+                            result.toString()
+
+
+                    );
+
+                } else {
+                    return("Connection error");
+                }
+            } catch (IOException e) {
+                e.printStackTrace()                ;
+
+                return e.toString();
+            } finally {
+                conne.disconnect();
+            }
+        }
+
+
+        @Override
+        protected void onPostExecute(String result) {
+
+        }
+
+        }
+
+    }
+
+
 

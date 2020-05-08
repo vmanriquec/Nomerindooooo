@@ -29,42 +29,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
 
-    <Switch
-        android:id="@+id/adicionalesswitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Adcionales"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.05"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.846" />
-
-    <Switch
-        android:id="@+id/switch1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Cremas   "
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.94"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.847" />
-
-    <Button
-        android:id="@+id/adicionales"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Adicionales"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.425"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.887" />
-
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
@@ -76,10 +40,10 @@
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.048"
+        app:layout_constraintHorizontal_bias="0.059"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.692" />
+        app:layout_constraintVertical_bias="0.775" />
 
     <TextView
         android:id="@+id/textView2"
@@ -92,10 +56,10 @@
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.3"
+        app:layout_constraintHorizontal_bias="0.258"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.765" />
+        app:layout_constraintVertical_bias="0.86" />
 
     <Spinner
         android:id="@+id/spinnerio"
@@ -106,10 +70,10 @@
         android:layout_weight="1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.9"
+        app:layout_constraintHorizontal_bias="0.91"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.693"
+        app:layout_constraintVertical_bias="0.779"
         tools:ignore="UnknownId" />
 
     <Spinner
@@ -121,16 +85,16 @@
         android:layout_weight="1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.903"
+        app:layout_constraintHorizontal_bias="0.897"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.767"
+        app:layout_constraintVertical_bias="0.861"
         tools:ignore="UnknownId" />
 
     <ImageView
         android:id="@+id/foto"
-        android:layout_width="405dp"
-        android:layout_height="213dp"
+        android:layout_width="400dp"
+        android:layout_height="242dp"
         android:paddingLeft="5dp"
         android:paddingTop="5dp"
         android:paddingRight="5dp"
@@ -164,7 +128,7 @@
         app:layout_constraintHorizontal_bias="0.433"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.471">
+        app:layout_constraintVertical_bias="0.553">
 
         <LinearLayout
             android:layout_width="60dp"
@@ -245,6 +209,7 @@
                     android:layout_gravity="center_horizontal|center_vertical"
                     android:gravity="center_horizontal|left|center_vertical"
                     android:hint="Precio Venta"
+                    android:inputType="numberDecimal"
                     android:paddingLeft="10dp"
                     android:textColorHint="@color/accent"
                     android:textSize="18sp" />
@@ -271,7 +236,7 @@
                 android:background="@color/semiTransparentWhite"
                 android:orientation="vertical">
 
-                <TextView
+                <EditText
                     android:id="@+id/ingredientes"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

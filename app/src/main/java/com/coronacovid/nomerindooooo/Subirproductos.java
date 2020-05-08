@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -30,9 +31,14 @@ import android.widget.Toast;
 
 import com.coronacovid.nomerindooooo.modelos.Almacen;
 import com.coronacovid.nomerindooooo.modelos.Familia;
+import com.coronacovid.nomerindooooo.modelos.Productoguardar;
+import com.coronacovid.nomerindooooo.modelos.Productos;
 import com.crowdfire.cfalertdialog.CFAlertDialog;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -42,22 +48,26 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Objects;
 
 public class Subirproductos extends AppCompatActivity {
     private static final String TAG = "";
-    Button eleccion,adicionales,guardarproducto;
+    Button eleccion,guardarproducto;
     private static final int PICK_IMAGE = 100;
     Uri imageUri;
     ImageView foto_gallery;
@@ -87,7 +97,7 @@ precioproducto=(TextView)findViewById(R.id.precio);
 almacen =(Spinner) findViewById(R.id.spinnerio);
         familia =(Spinner) findViewById(R.id.spinnerio2);
         eleccion=(Button)findViewById(R.id.camara);
-        adicionales=(Button)findViewById(R.id.adicionales);
+
 guardarproducto=(Button)findViewById(R.id.guardarproducto);
         new cargaralmacen().execute();
 
@@ -97,32 +107,93 @@ guardarproducto=(Button)findViewById(R.id.guardarproducto);
 guardarproducto.setOnClickListener(new View.OnClickListener() {
     @Override
     public void onClick(View v) {
-        FirebaseStorage storage = FirebaseStorage.getInstance();
+        final FirebaseStorage storage= FirebaseStorage.getInstance();
+
+        StorageReference storageRef = storage.getReference();
+
+// Create a reference to "mountains.jpg"
+        String nombre=nombreproducto.getText().toString();
+        StorageReference mountainsRef = storageRef.child(nombre+".jpg");
 
 
-
-        // Creamos una referencia a la carpeta y el nombre de la imagen donde se guardara
-
-        StorageReference mountainImagesRef = storageRef.child("camara/"+timeStamp+".jpg");
-//Pasamos la imagen a un array de byte
+        foto_gallery.setDrawingCacheEnabled(true);
+        foto_gallery.buildDrawingCache();
+        Bitmap bitmap = ((BitmapDrawable) foto_gallery.getDrawable()).getBitmap();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        byte[] datas = baos.toByteArray();
+        byte[] data = baos.toByteArray();
 
-// Empezamos con la subida a Firebase
-        UploadTask uploadTask = mountainImagesRef.putBytes(datas);
+        UploadTask uploadTask = mountainsRef.putBytes(data);
+
+
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                Toast.makeText(getBaseContext(),"Hubo un error",Toast.LENGTH_LONG);
+                // Handle unsuccessful uploads
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Toast.makeText(getBaseContext(),"Subida con exito",Toast.LENGTH_LONG);
+                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                // ...
+                if (taskSnapshot.getMetadata() != null) {
+                    if (taskSnapshot.getMetadata().getReference() != null) {
+                        Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
+                        result.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                String imageUrl = uri.toString();
 
-            }
+                                Log.d("imagen",imageUrl);
+
+                                Spinner almacen=(Spinner)findViewById(R.id.spinnerio);
+                                String al =almacen.getItemAtPosition(almacen.getSelectedItemPosition()).toString();
+                                String mesei=al;
+                                int g= mesei.length();
+                                String mesi = mesei.substring(0,2);
+
+                                String  idalmacen=mesi.trim();
+
+                                String mesio = mesei.substring(3,g);
+                                String nombrealmacen=mesio.trim();
+
+
+
+                                Spinner familia=(Spinner)findViewById(R.id.spinnerio2);
+                                String alf =familia.getItemAtPosition(almacen.getSelectedItemPosition()).toString();
+                                String meseif=alf;
+                                int gf= meseif.length();
+                                String mesif = meseif.substring(0,2);
+
+                                String  idfamilia=mesif.trim();
+
+                                String mesiof = meseif.substring(3,gf);
+                                String nombrefamilia=mesiof.trim();
+
+
+                                Productoguardar pg=new Productoguardar(0,nombreproducto.getText().toString(),"1",Double.parseDouble(precioproducto.getText().toString())
+                                        ,"no",Integer.parseInt(idfamilia),Double.parseDouble("0"),imageUrl,"no hay","sin foto","sin qr"
+                                ,1,ingredientes.getText().toString(),Integer.parseInt(idalmacen));
+                                new grabarproducto().execute(pg);
+
+                            }
+                        });
+                    }
+                }
+
+
+
+
+
+                    }
         });
+
+
+
+
+
+
+
 
 
 
@@ -190,22 +261,6 @@ guardarproducto.setOnClickListener(new View.OnClickListener() {
 
 
 
-        adicionales.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CFAlertDialog.Builder builder = new CFAlertDialog.Builder(Subirproductos.this);
-                builder.setDialogStyle(CFAlertDialog.CFAlertStyle.ALERT);
-                builder.setTitle("Select notification tone!");
-                builder.setItems(new String[]{"None", "Alert", "Delight", "Guitar", "Marbles", "Prompt"}, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int index) {
-                        Toast.makeText(Subirproductos.this, "Selected:"+index, Toast.LENGTH_SHORT).show();
-                        dialogInterface.dismiss();
-                    }
-                });
-                builder.show();
-            }
-        });
 
 
     }
@@ -508,6 +563,162 @@ guardarproducto.setOnClickListener(new View.OnClickListener() {
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
     }
+    public class grabarproducto extends AsyncTask<Productoguardar, Void, String> {
+        String resultado;
+        HttpURLConnection conne;
+        URL url = null;
+        Productoguardar ped;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+
+        }
+
+        @Override
+        protected String doInBackground(Productoguardar... params) {
+            ped=params[0];
+            try {
+                url = new URL("https://sodapop.pe/sugest/apiguardarproducto.php");
+            } catch (MalformedURLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                return null;
+            }
+            try {
+                conne = (HttpURLConnection) url.openConnection();
+                conne.setReadTimeout(READ_TIMEOUT);
+                conne.setConnectTimeout(CONNECTION_TIMEOUT);
+                conne.setRequestMethod("POST");
+                conne.setDoInput(true);
+                conne.setDoOutput(true);
+
+                Uri.Builder builder = new Uri.Builder()
+
+                        .appendQueryParameter("nombreproducto",String.valueOf(ped.getNombreproducto()))
+                        .appendQueryParameter("estadoproducto",String.valueOf(ped.getEstadoproducto()))
+                        .appendQueryParameter("precventa",String.valueOf(ped.getPrecventa()))
+                        .appendQueryParameter("imagen",String.valueOf(ped.getImagen()))
+                        .appendQueryParameter("idfamilia",String.valueOf(ped.getIdfamilia()))
+
+
+
+                        .appendQueryParameter("preccosto",String.valueOf(ped.getPreccosto()))
+                        .appendQueryParameter("descripcion",String.valueOf(ped.getDescripcion()))
+                        .appendQueryParameter("codigobarras", String.valueOf(ped.getCodigobarras()))
+                        .appendQueryParameter("foto",String.valueOf(ped.getFoto()))
+
+                        .appendQueryParameter("qr",String.valueOf(ped.getQr()))
+                        .appendQueryParameter("idproveedor",String.valueOf(ped.getIdproveedor()))
+                        .appendQueryParameter("ingredientes", String.valueOf(ped.getIngredientes()))
+                        .appendQueryParameter("idalmacen",String.valueOf(ped.getIdalmacen()))
+
+
+                        ;
+                String query = builder.build().getEncodedQuery();
+
+                // Open connection for sending data
+                OutputStream os = conne.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(
+                        new OutputStreamWriter(os, "UTF-8"));
+                writer.write(query);
+                writer.flush();
+                writer.close();
+                os.close();
+                conne.connect();
+
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+                Log.d("cirio",e1.toString());
+                return null;
+            }
+            try {
+                int response_code = conne.getResponseCode();
+                if (response_code == HttpURLConnection.HTTP_OK) {
+                    InputStream input = conne.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                    StringBuilder result = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        result.append(line);
+
+                    }
+                    resultado=result.toString();
+                    Log.d("paso",resultado.toString());
+                    return resultado;
+
+                } else {
+
+                }
+            } catch (IOException e) {
+                e.printStackTrace()                ;
+                Log.d("cirio2",e.toString());
+                return null;
+            } finally {
+                conne.disconnect();
+            }
+            Log.d("cirio3",resultado);
+            return resultado;
+
+        }
+        @Override
+        protected void onPostExecute(final String resultado) {
+
+            super.onPostExecute(resultado);
+
+            if(resultado.equals("true")){
+                Log.d("ii", resultado);
+
+
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(Subirproductos.this);
+                builder.setMessage("Agregar Adicionales y Cremas?")
+                        .setCancelable(false)
+                        .setPositiveButton("Si", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                                Intent ListSong = new Intent(getApplicationContext(), Agregaradicionales.class);
+                                ListSong.putExtra("idproducto", resultado);
+                                ListSong.putExtra("nombreproducto",nombreproducto.getText().toString());
+                                startActivity(ListSong);
+
+                            }
+
+
+                        })
+
+                        .setNegativeButton("no", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                                Intent ListSong = new Intent(getApplicationContext(), Listaproductos.class);
+                                startActivity(ListSong);
+
+                            }
+                        });
+                AlertDialog alert = builder.create();
+                alert.show();
+
+
+
+
+
+            }else{
+                String ii =resultado.toString();
+                Log.d("jj", "producto valido");
+
+
+                // lanzarsistema();
+            }
+
+
+
+        }
+    }
+
+
 
 
 }

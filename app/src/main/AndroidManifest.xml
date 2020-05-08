@@ -26,8 +26,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light">
-        <activity android:name=".Listaproductos"></activity>
-        <activity android:name=".Subirproductos"></activity>
+        <activity android:name=".Agregaradicionales"></activity>
+        <activity android:name=".Listaproductos" />
+        <activity android:name=".Subirproductos" />
         <activity android:name=".Mostrarpedidos" />
         <activity android:name=".MainActivity">
             <intent-filter>

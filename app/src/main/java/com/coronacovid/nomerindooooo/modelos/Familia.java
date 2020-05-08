@@ -32,8 +32,7 @@ public class Familia {
     }
 
     @Override
-    public String toString(){
-        return this.nombrefamilia;
+    public String toString(){return String.valueOf(idfamilia)+" - "+ String.valueOf(nombrefamilia);
     }
 
 }
