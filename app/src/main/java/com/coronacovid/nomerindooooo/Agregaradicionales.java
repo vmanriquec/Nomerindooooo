@@ -3,7 +3,12 @@ package com.coronacovid.nomerindooooo;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -11,16 +16,23 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.coronacovid.nomerindooooo.adaptadores.Adaptadorrecibepedidos;
 import com.coronacovid.nomerindooooo.modelos.Adicional;
 import com.coronacovid.nomerindooooo.modelos.Crema;
+import com.coronacovid.nomerindooooo.modelos.Productoadicional;
+import com.coronacovid.nomerindooooo.modelos.Productoguardar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,20 +55,50 @@ import java.util.ArrayList;
 public class Agregaradicionales extends AppCompatActivity {
     public static final int CONNECTION_TIMEOUT = 10000;
     public static final int READ_TIMEOUT = 15000;
+    int idproducto;
+    String crem="";
+    int numerodeadiciones;
 TextView cabeceralayoutadicional;
+Switch estadocrema;
+    String FileName = "myfile";
+    SharedPreferences prefs;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.agregaradicionales);
+
+        SharedPreferences sharedPreferences =getSharedPreferences(FileName, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor=sharedPreferences.edit();
+
+        Button listo=(Button)findViewById(R.id.listo);
         Bundle datos = this.getIntent().getExtras();
-        int idproducto = datos.getInt("idproducto");
-        String nombreproducto = datos.getString("nombreproducto");
+
+        String idpro = datos.getString("idproducto");
+
+
+
+        guardaridproducto(idpro);
+
+       String nombreproducto = datos.getString("nombreproducto");
         cabeceralayoutadicional=(TextView)findViewById(R.id.cabeceralayoutadicional);
         cabeceralayoutadicional.setText(nombreproducto);
         new traeradicional().execute("17");
-        new traercremas().execute("17");
+       //new traercremas().execute("17");
+listo.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onClick(View v) {
+
+
+
+
+        Intent ListSong = new Intent(getApplicationContext(), Listaproductos.class);
+        startActivity(ListSong);
 
     }
+});
+    }
+
+
     private class traercremas extends AsyncTask<String, String, String> {
         ProgressDialog pdLoading = new ProgressDialog(Agregaradicionales.this);
         HttpURLConnection conne;
@@ -291,7 +333,9 @@ TextView cabeceralayoutadicional;
                         result.append(line);
                     }
                     return (
+
                             result.toString()
+
                     );
                 } else {
                     return ("Connection error");
@@ -299,6 +343,7 @@ TextView cabeceralayoutadicional;
             } catch (IOException e) {
                 e.printStackTrace();
                 return e.toString();
+
             } finally {
                 conne.disconnect();
             }
@@ -306,7 +351,7 @@ TextView cabeceralayoutadicional;
 
         @Override
         protected void onPostExecute(String result) {
-
+            Log.d("paso",result.toString());
             pdLoading.dismiss();
             ArrayList<Adicional> peopleadicional = new ArrayList<>();
             String[] stradicional = {"No Suggestions"};
@@ -345,17 +390,77 @@ TextView cabeceralayoutadicional;
 
                     TableRow.LayoutParams textoenlayout = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT);
                     my_layout.addView(texto, textoenlayout);
+                    for( numerodeadiciones= 0; numerodeadiciones < peopleadicional.size(); numerodeadiciones++) {
+                        CheckBox cb = new CheckBox(getApplication());
+                        cb.setText("   "+peopleadicional.get(numerodeadiciones).getNombreadicional()+ "               S/. "+String.valueOf(peopleadicional.get(numerodeadiciones).getPrecioadicional()));
+                        Double ffff=peopleadicional.get(numerodeadiciones).getPrecioadicional();
+                        String q=peopleadicional.get(numerodeadiciones).getNombreadicional();
+                        Double l=peopleadicional.get(numerodeadiciones).getPrecioadicional();
+                        final int ida=peopleadicional.get(numerodeadiciones).getIdadicional();
 
 
 
 
+                        cb.setId(numerodeadiciones);
+                        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+                            @Override
+                            public void onCheckedChanged(CompoundButton buttonView,
+                                                         final boolean isChecked) {
+
+
+                                CharSequence options[];
+                                prefs = getApplicationContext().getSharedPreferences(FileName, Context.MODE_PRIVATE);
+                                String idproductom=prefs.getString("idproducto","");
+                                int ou=Integer.parseInt(idproductom);
+
+
+Switch lo=(Switch)findViewById(R.id.estadocrema);
 
 
 
 
+                                if (isChecked) {
+
+
+                                    lo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                            if (isChecked) {
+                                                // The toggle is enabled
+                                                crem="1";
+                                            } else {
+                                                // The toggle is disabled
+                                                crem="0";
+                                            }
+                                        }
+                                    });
+                                    ;
+                                    //String preciodeadicional=String.valueOf(peopleadicional.get(numerodeadiciones).getPrecioadicional());
+Productoadicional yu=new Productoadicional(1,ou,ida,crem);
+                                    new grabaradicional().execute(yu);
+                                } else {
+                                    lo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                            if (isChecked) {
+                                                // The toggle is enabled
+                                                crem="1";
+                                            } else {
+                                                // The toggle is disabled
+                                                crem="0";
+                                            }
+                                        }
+                                    });
+
+                                    Productoadicional yu=new Productoadicional(1,ou,ida,crem);
+                                    new eliminaradicional().execute(yu);
+
+                                }
+                            }});
 
 
 
+                        my_layout.addView(cb);
+                    }
 
                 } catch (JSONException e) {
                     Log.d("erroro",e.toString());
@@ -365,4 +470,219 @@ TextView cabeceralayoutadicional;
 
     }
 
+
+    public class grabaradicional extends AsyncTask<Productoadicional, Void, String> {
+        String resultado;
+        HttpURLConnection conne;
+        URL url = null;
+        Productoadicional ped;
+        ProgressDialog pdLoading = new ProgressDialog(Agregaradicionales.this);
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pdLoading.setMessage("\tAsignando accion..");
+            pdLoading.setCancelable(false);
+            pdLoading.show();
+
+        }
+
+        @Override
+        protected String doInBackground(Productoadicional... params) {
+            ped=params[0];
+            try {
+                url = new URL("https://sodapop.pe/sugest/grabaradicionalproducto.php");
+            } catch (MalformedURLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                return null;
+            }
+            try {
+                conne = (HttpURLConnection) url.openConnection();
+                conne.setReadTimeout(READ_TIMEOUT);
+                conne.setConnectTimeout(CONNECTION_TIMEOUT);
+                conne.setRequestMethod("POST");
+                conne.setDoInput(true);
+                conne.setDoOutput(true);
+
+                Uri.Builder builder = new Uri.Builder()
+
+                        .appendQueryParameter("idproducto",String.valueOf(ped.getIdproducto()))
+                        .appendQueryParameter("idadicional", String.valueOf(ped.getIdadicional()))
+                        .appendQueryParameter("estadocrema",String.valueOf(ped.getEstadocrema()))
+
+
+                        ;
+                String query = builder.build().getEncodedQuery();
+
+                // Open connection for sending data
+                OutputStream os = conne.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(
+                        new OutputStreamWriter(os, "UTF-8"));
+                writer.write(query);
+                writer.flush();
+                writer.close();
+                os.close();
+                conne.connect();
+
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+                Log.d("cirio",e1.toString());
+                return null;
+            }
+            try {
+                int response_code = conne.getResponseCode();
+                if (response_code == HttpURLConnection.HTTP_OK) {
+                    InputStream input = conne.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                    StringBuilder result = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        result.append(line);
+
+                    }
+                    resultado=result.toString();
+                    Log.d("paso",resultado.toString());
+                    return resultado;
+
+                } else {
+
+                }
+            } catch (IOException e) {
+                e.printStackTrace()                ;
+                Log.d("cirio2",e.toString());
+                return null;
+            } finally {
+                conne.disconnect();
+            }
+            Log.d("cirio3",resultado);
+            return resultado;
+
+        }
+        @Override
+        protected void onPostExecute(final String resultado) {
+            pdLoading.dismiss();
+            super.onPostExecute(resultado);
+
+
+
+
+        }
+    }
+    public class eliminaradicional extends AsyncTask<Productoadicional, Void, String> {
+        String resultado;
+        HttpURLConnection conne;
+        URL url = null;
+        Productoadicional ped;
+        ProgressDialog pdLoading = new ProgressDialog(Agregaradicionales.this);
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pdLoading.setMessage("\teliminando accion..");
+            pdLoading.setCancelable(false);
+            pdLoading.show();
+
+        }
+
+        @Override
+        protected String doInBackground(Productoadicional... params) {
+            ped=params[0];
+            try {
+                url = new URL("https://sodapop.pe/sugest/eliminaradicionalproducto.php");
+            } catch (MalformedURLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                return null;
+            }
+            try {
+                conne = (HttpURLConnection) url.openConnection();
+                conne.setReadTimeout(READ_TIMEOUT);
+                conne.setConnectTimeout(CONNECTION_TIMEOUT);
+                conne.setRequestMethod("POST");
+                conne.setDoInput(true);
+                conne.setDoOutput(true);
+
+                Uri.Builder builder = new Uri.Builder()
+
+                        .appendQueryParameter("idproducto",String.valueOf(ped.getIdproducto()))
+                        .appendQueryParameter("idadicional", String.valueOf(ped.getIdadicional()))
+                        .appendQueryParameter("estadocrema",String.valueOf(ped.getEstadocrema()))
+
+
+                        ;
+                String query = builder.build().getEncodedQuery();
+
+                // Open connection for sending data
+                OutputStream os = conne.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(
+                        new OutputStreamWriter(os, "UTF-8"));
+                writer.write(query);
+                writer.flush();
+                writer.close();
+                os.close();
+                conne.connect();
+
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+                Log.d("cirio",e1.toString());
+                return null;
+            }
+            try {
+                int response_code = conne.getResponseCode();
+                if (response_code == HttpURLConnection.HTTP_OK) {
+                    InputStream input = conne.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                    StringBuilder result = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        result.append(line);
+
+                    }
+                    resultado=result.toString();
+                    Log.d("paso",resultado.toString());
+                    return resultado;
+
+                } else {
+
+                }
+            } catch (IOException e) {
+                e.printStackTrace()                ;
+                Log.d("cirio2",e.toString());
+                return null;
+            } finally {
+                conne.disconnect();
+            }
+            Log.d("cirio3",resultado);
+            return resultado;
+
+        }
+        @Override
+        protected void onPostExecute(final String resultado) {
+            pdLoading.dismiss();
+            super.onPostExecute(resultado);
+
+
+
+
+        }
+    }
+
+    public   void guardaridproducto(String idproducto){
+        SharedPreferences sharedPreferences =getSharedPreferences(FileName, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor=sharedPreferences.edit();
+        editor.putString("idproducto",idproducto);
+
+        editor.commit();
+
+    }
+
+
+
 }
+
+

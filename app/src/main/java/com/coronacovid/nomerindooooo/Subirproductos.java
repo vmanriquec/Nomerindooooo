@@ -85,7 +85,7 @@ public class Subirproductos extends AppCompatActivity {
     String FileName = "myfile";
     public static final int CONNECTION_TIMEOUT = 10000;
     public static final int READ_TIMEOUT = 15000;
-
+    ProgressDialog pdLoading = new ProgressDialog(Subirproductos.this);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,6 +107,10 @@ guardarproducto=(Button)findViewById(R.id.guardarproducto);
 guardarproducto.setOnClickListener(new View.OnClickListener() {
     @Override
     public void onClick(View v) {
+
+        pdLoading.setMessage("\tSubiendo Imagen");
+        pdLoading.setCancelable(false);
+        pdLoading.show();
         final FirebaseStorage storage= FirebaseStorage.getInstance();
 
         StorageReference storageRef = storage.getReference();
@@ -170,7 +174,7 @@ guardarproducto.setOnClickListener(new View.OnClickListener() {
                                 String mesiof = meseif.substring(3,gf);
                                 String nombrefamilia=mesiof.trim();
 
-
+                                pdLoading.dismiss();
                                 Productoguardar pg=new Productoguardar(0,nombreproducto.getText().toString(),"1",Double.parseDouble(precioproducto.getText().toString())
                                         ,"no",Integer.parseInt(idfamilia),Double.parseDouble("0"),imageUrl,"no hay","sin foto","sin qr"
                                 ,1,ingredientes.getText().toString(),Integer.parseInt(idalmacen));
@@ -568,11 +572,14 @@ guardarproducto.setOnClickListener(new View.OnClickListener() {
         HttpURLConnection conne;
         URL url = null;
         Productoguardar ped;
+        ProgressDialog pdLoading = new ProgressDialog(Subirproductos.this);
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
+            pdLoading.setMessage("\tsubiendo producto..");
+            pdLoading.setCancelable(false);
+            pdLoading.show();
 
         }
 
@@ -666,7 +673,7 @@ guardarproducto.setOnClickListener(new View.OnClickListener() {
         }
         @Override
         protected void onPostExecute(final String resultado) {
-
+pdLoading.dismiss();
             super.onPostExecute(resultado);
 
             if(resultado.equals("true")){
@@ -674,6 +681,16 @@ guardarproducto.setOnClickListener(new View.OnClickListener() {
 
 
 
+
+
+
+
+            }else{
+           //     String ii =resultado.toString();
+             //   Log.d("jj", "producto valido");
+
+
+                // lanzarsistema();
                 AlertDialog.Builder builder = new AlertDialog.Builder(Subirproductos.this);
                 builder.setMessage("Agregar Adicionales y Cremas?")
                         .setCancelable(false)
@@ -702,15 +719,6 @@ guardarproducto.setOnClickListener(new View.OnClickListener() {
                 alert.show();
 
 
-
-
-
-            }else{
-                String ii =resultado.toString();
-                Log.d("jj", "producto valido");
-
-
-                // lanzarsistema();
             }
 
 

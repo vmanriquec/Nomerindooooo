@@ -1,5 +1,6 @@
 package com.coronacovid.nomerindooooo.adaptadores;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -7,6 +8,7 @@ import android.graphics.Color;
 
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,12 +50,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
+
 import jp.wasabeef.picasso.transformations.CropSquareTransformation;
 
 
 
 public class Adaptadormaestraproducto extends RecyclerView.Adapter<Adaptadormaestraproducto.AdaptadorViewHolder> {
-    private Context mainContext;
+    public Context mainContext;
     public static final int CONNECTION_TIMEOUT = 10000;
     public static final int READ_TIMEOUT = 15000;
 
@@ -63,7 +66,10 @@ public class Adaptadormaestraproducto extends RecyclerView.Adapter<Adaptadormaes
     private List<Productos> items;
     ArrayList<Detallepedido> detallepedido=new ArrayList<>();
     Detallepedido objdetallepedido;
+
+
     Realm realm = Realm.getDefaultInstance();
+
     public Adaptadormaestraproducto(List<Productos> items, Context contexto){
         this.mainContext=contexto;
         this.items=items;
@@ -81,7 +87,7 @@ public class Adaptadormaestraproducto extends RecyclerView.Adapter<Adaptadormaes
         protected ImageView productoimagen;
         protected TextView inventario;
     protected  ImageView getProductoimagen;
-        protected Button editar,eliminar;
+        protected Button editar,eliminaro;
         ;
 
         public AdaptadorViewHolder(View v){
@@ -92,7 +98,7 @@ public class Adaptadormaestraproducto extends RecyclerView.Adapter<Adaptadormaes
             this.inventario=(TextView) v.findViewById(R.id.inventarioproducto);
             this.productoingredientes=(TextView) v.findViewById(R.id.ingredientesproductos);
             this.productoimagen=(ImageView) v.findViewById(R.id.imagenproductos);
-this.eliminar=(Button)v.findViewById(R.id.eliminar);
+this.eliminaro=(Button)v.findViewById(R.id.eliminarproducto);
 
 
         }
@@ -111,7 +117,8 @@ this.eliminar=(Button)v.findViewById(R.id.eliminar);
         viewHolder.productoingredientes.setText(item.getIngredientes());
         viewHolder.productoprecio.setText("S/. "+ String.valueOf(item.getPrecventa()));
         viewHolder.idproducto.setText(String.valueOf(item.getIdproducto()));
-if (item.getEstadoproducto().equals("")){
+
+        if (item.getEstadoproducto().equals("")){
 
             viewHolder.inventario.setText("0");
 
@@ -120,11 +127,6 @@ if (item.getEstadoproducto().equals("")){
             viewHolder.inventario.setText(String.valueOf(item.getEstadoproducto()));
         }
 
-
-        //viewHolder.michek.setVisibility(View.GONE);
-        //viewHolder.cantidadpedida.setVisibility(View.GONE);
-
-/*asignar imagen desde url*/
         foto=item.getDescripcion().toString();
 
         Picasso.get().load(foto).transform(new CropSquareTransformation()).resize(200, 200)
@@ -133,12 +135,9 @@ if (item.getEstadoproducto().equals("")){
         viewHolder.productoimagen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
                 Toast ImageToast = new Toast(mainContext.getApplicationContext());
                 LinearLayout toastLayout = new LinearLayout(mainContext.getApplicationContext());
                 toastLayout.setOrientation(LinearLayout.VERTICAL);
-
                 ImageView image = new ImageView(mainContext.getApplicationContext());
                 TextView text = new TextView(mainContext.getApplicationContext());
                 foto=item.getDescripcion().toString();
@@ -156,32 +155,21 @@ if (item.getEstadoproducto().equals("")){
                 ImageToast.setGravity (Gravity.TOP | Gravity.LEFT, 40, 40);
                 ImageToast.setDuration(Toast.LENGTH_LONG);
                 ImageToast.show();
-
-
                 ImageToast.getView().setPadding( 20, 100, 20, 20);
-
+            }
+        });
+        viewHolder.eliminaro.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            String oo=String.valueOf(item.getIdproducto());
+            new eliminarproducto().execute(oo);
+                items.remove(position);
+                notifyItemRemoved(position);
+                notifyItemRangeChanged(position, getItemCount());
 
 
             }
-        });
-
-
-
-        /*si esta check activo para aumentar cantidad*/
-
-
-
-        //prefs = mainContext.getApplicationContext().getSharedPreferences(FileName, Context.MODE_PRIVATE);
-        //String idalmacenactiv = prefs.getString("idalmacenactivosf", "1");
-        //int i= Integer.parseInt(idalmacenactiv);
-
-viewHolder.eliminar.setOnClickListener(new View.OnClickListener() {
-    @Override
-    public void onClick(View v) {
-String oo=String.valueOf(item.getIdproducto());
-        new eliminarproducto().execute(oo);
-    }
-});
+            });
 
 
     }
@@ -282,6 +270,7 @@ String oo=String.valueOf(item.getIdproducto());
 
         @Override
         protected void onPostExecute(String result) {
+            Log.d("paso",result.toString());
 
         }
 
